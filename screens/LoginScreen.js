@@ -5,7 +5,15 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomButton from '../components/CustomButton';
 import InputField from '../components/InputField';
 
-const LoginScreen = () => {
+
+const LoginScreen = ({navigation}) => {
+  
+  const loginFunc = () => {
+    // Add logic for API calls + validation
+    
+    navigation.navigate('HomeScreen')
+  }
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={{flex: 1, padding: 16}}>
@@ -45,9 +53,9 @@ const LoginScreen = () => {
           fieldButtonFunction={() => {}}
         />
 
-        <CustomButton label={"Login"} onPress={() => {}} />
+        <CustomButton label={"Login"} onPress={() => loginFunc()} />
         
-        <TouchableOpacity onPress={() => {}}>
+        <TouchableOpacity onPress={() => {navigation.navigate('RegisterScreen')}}>
           <Text style={{color: '#25D366', fontWeight: '700'}}>Create new account</Text>
         </TouchableOpacity>
 
