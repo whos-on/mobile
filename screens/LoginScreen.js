@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   TouchableOpacity,
   Image,
@@ -10,8 +10,10 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import CustomButton from "../components/CustomButton";
 import InputField from "../components/InputField";
+import { AuthContext } from "../context/AuthContext";
 
 const LoginScreen = ({ navigation }) => {
+  const {login} = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [data, setData] = useState({});
@@ -101,7 +103,7 @@ const LoginScreen = ({ navigation }) => {
               console.log(statusNum);
               console.log(data);
               if (statusNum == 200) {
-                navigation.navigate("HomeScreen");
+                login(data);
               } else {
                 console.log("Something went wrong");
               }
