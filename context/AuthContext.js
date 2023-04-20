@@ -13,12 +13,22 @@ export const AuthProvider = ({children}) => {
         setUserToken('iosdkjvadks');
         setUser(data);
         AsyncStorage.setItem('userToken', 'iosdkjvadks');
+        AsyncStorage.setItem('userID', data.id);
+        AsyncStorage.setItem('userFirstName', data.firstName);
+        AsyncStorage.setItem('userLastName', data.lastName);
+        AsyncStorage.setItem('username', data.username);
+        
         setIsLoading(false);
     }
     const logout = () => {
         setIsLoading(true);
         setUserToken(null);
+        setUser(null)
         AsyncStorage.removeItem('userToken');
+        AsyncStorage.removeItem('userID');
+        AsyncStorage.removeItem('userFirstName');
+        AsyncStorage.removeItem('userLastName');
+        AsyncStorage.removeItem('username');
         setIsLoading(false);
     }
 
@@ -26,6 +36,13 @@ export const AuthProvider = ({children}) => {
         try {
             setIsLoading(true);
             let userToken = AsyncStorage.getItem('userToken');
+            let user = {
+                "id": AsyncStorage.getItem('userID'),
+                "firstName": AsyncStorage.getItem('userFirstName'),
+                "lastName": AsyncStorage.getItem('userLastName'),
+                "username": AsyncStorage.getItem('username')
+            };
+            setUser(user);
             setUserToken(userToken);
             setIsLoading(false);
         } catch(e) {
@@ -38,7 +55,7 @@ export const AuthProvider = ({children}) => {
     }, [])
 
     return (
-        <AuthContext.Provider value={{login, logout, isLoading, userToken}}>
+        <AuthContext.Provider value={{login, logout, isLoading, userToken, user}}>
             {children}
         </AuthContext.Provider>
     );

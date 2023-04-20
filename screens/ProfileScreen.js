@@ -14,21 +14,17 @@ export default function ProfileScreen() {
   
   const [errorMsg, setErrorMsg] = useState(null);
   const [location, setLocation] = useState(null);
-  const [firstName, setFirstName] = useState('Stanley');
-  const [lastName, setLastName] = useState('Pierre');
-  const [status, setStatus] = useState('Online');
-  const [curLoc, setCurLoc] = useState({
-    latitude: 26.0250,
-    longitude: -80.3550
-  })
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState('Online');
   const [items, setItems] = useState([
     {label: 'Online', value: 'online'},
     {label: 'Offline', value: 'offline'},
     {label: 'Away', value: 'away'}
   ]);
+  const [data, setData] = useState({});
+  const [statusNum, setStatusNum] = useState(0);
   const {logout, user} = useContext(AuthContext);
+
   useEffect(() => {
     (async () => {
       
@@ -40,7 +36,6 @@ export default function ProfileScreen() {
 
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
-      setCurLoc({latitude: {}, longitude: {}})
     })();
   }, []);
 
@@ -50,6 +45,39 @@ export default function ProfileScreen() {
   } else if (location) {
     text = JSON.stringify(location);
   }
+
+  const fetchUpdate = async () => {
+    try {
+      console.log(user.id)
+      console.log(value)
+      console.log(location.coords.longitude)
+      console.log(location.coords.latitude)
+      const response = await fetch("https://api.whos-on.app/api/user/refresh", {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: user.id,
+          userStatus: value,
+          location: {latitude: location.coords.latitude, longitude: location.coords.longitude},
+        }),
+      });
+      console.log(response.status);
+      setStatusNum(response.status);
+      const jsonData = await response.json();
+      //console.log(jsonData);
+      setData(jsonData);
+      console.log(statusNum);
+      console.log(jsonData);
+    } catch (error) {
+      setData({});
+      //console.log(statusNum);
+      //console.log(jsonData);
+      console.error(error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -61,7 +89,7 @@ export default function ProfileScreen() {
       rounded
     />
     <View style = {{paddingTop: 5, paddingBottom: 20}}>
-    <Text style={styles.titleText}> {firstName + " " + lastName}</Text>
+    <Text style={styles.titleText}> {user.firstName + " " + user.lastName}</Text>
      </View> 
      <View style={styles.statusbar}>
     <Text style={styles.subtitleText}> {"Status: "} </Text>
@@ -73,8 +101,10 @@ export default function ProfileScreen() {
       setValue={setValue}
       setItems={setItems}
       containerStyle={{width: 200}}
-      placeholder={status}
-      onChangeValue = {() => console.log(value)}
+      placeholder={value}
+      onChangeValue = {() => 
+        fetchUpdate()
+      }
     />
     
      </View>
