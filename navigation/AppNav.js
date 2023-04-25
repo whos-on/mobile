@@ -7,9 +7,9 @@ import { AuthContext } from '../context/AuthContext'
 
 
 const AppNav = () => {
-    const {isLoading, userToken} = useContext(AuthContext);
+    const {splashLoading, userInfo} = useContext(AuthContext);
 
-    if( isLoading ) {
+    if( splashLoading ) {
         return (
             <View style={{flex: 1, justifyContent:'center', alignItems:'center'}}>
                 <ActivityIndicator  size={'large'} />
@@ -19,7 +19,7 @@ const AppNav = () => {
 
     return (
         <NavigationContainer>
-            {userToken !== null ? <TabNavigator /> : <AuthStack />}
+            {userInfo !== null ? <TabNavigator /> : <AuthStack />}
         </NavigationContainer>
     )
 }

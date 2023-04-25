@@ -6,6 +6,7 @@ import { getColorFromStatus } from '../components/utils';
 import DropDownPicker from 'react-native-dropdown-picker';
 import CustomButton from '../components/CustomButton';
 import { AuthContext } from '../context/AuthContext';
+import Spinner from 'react-native-loading-spinner-overlay';
 // Icon (FL)
 // Name (First + Last)
 // Status (Indicatopr + Text)
@@ -17,79 +18,46 @@ export default function ProfileScreen() {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('Online');
   const [items, setItems] = useState([
-    {label: 'Online', value: 'online'},
-    {label: 'Offline', value: 'offline'},
-    {label: 'Away', value: 'away'}
+    {label: 'Online', value: 'Online'},
+    {label: 'Offline', value: 'Offline'},
+    {label: 'Away', value: 'Away'}
   ]);
-  const [data, setData] = useState({});
-  const [statusNum, setStatusNum] = useState(0);
-  const {logout, user} = useContext(AuthContext);
 
-  useEffect(() => {
-    (async () => {
+  const {logout, isLoading, userInfo, refresh} = useContext(AuthContext);
+
+  // useEffect(() => {
+  //   (async () => {
       
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
+  //     let { status } = await Location.requestForegroundPermissionsAsync();
+  //     if (status !== 'granted') {
+  //       setErrorMsg('Permission to access location was denied');
+  //       return;
+  //     }
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    })();
-  }, []);
+  //     let location = await Location.getCurrentPositionAsync({});
+  //     setLocation(location);
+  //   })();
+  // }, []);
 
-  let text = 'Waiting..';
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
-  }
+  // let text = 'Waiting..';
+  // if (errorMsg) {
+  //   text = errorMsg;
+  // } else if (location) {
+  //   text = JSON.stringify(location);
+  // }
 
-  const fetchUpdate = async () => {
-    try {
-      console.log(user.id)
-      console.log(value)
-      console.log(location.coords.longitude)
-      console.log(location.coords.latitude)
-      const response = await fetch("https://api.whos-on.app/api/user/refresh", {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: user.id,
-          userStatus: value,
-          location: {latitude: location.coords.latitude, longitude: location.coords.longitude},
-        }),
-      });
-      console.log(response.status);
-      setStatusNum(response.status);
-      const jsonData = await response.json();
-      //console.log(jsonData);
-      setData(jsonData);
-      console.log(statusNum);
-      console.log(jsonData);
-    } catch (error) {
-      setData({});
-      //console.log(statusNum);
-      //console.log(jsonData);
-      console.error(error);
-    }
-  };
 
   return (
     <View style={styles.container}>
-
+    <Spinner visible={isLoading} />
     <Avatar
       size={96}
-      title={user.firstName.substring(0, 1) + user.lastName.substring(0, 1)}
+      title={userInfo.firstName.substring(0, 1) + userInfo.lastName.substring(0, 1)}
       containerStyle={{ backgroundColor: '#25D366'}}
       rounded
     />
     <View style = {{paddingTop: 5, paddingBottom: 20}}>
-    <Text style={styles.titleText}> {user.firstName + " " + user.lastName}</Text>
+    <Text style={styles.titleText}> {userInfo.firstName + " " + userInfo.lastName}</Text>
      </View> 
      <View style={styles.statusbar}>
     <Text style={styles.subtitleText}> {"Status: "} </Text>
@@ -102,12 +70,17 @@ export default function ProfileScreen() {
       setItems={setItems}
       containerStyle={{width: 200}}
       placeholder={value}
-      onChangeValue = {() => 
-        fetchUpdate()
-      }
+      onChangeValue = {() => {
+        // let inputLoc = {latitude: location.coords.latitude, longitude: location.coords.longitude};
+        // let id = userInfo.id;
+        // console.log(inputLoc)
+        // console.log(id)
+        // console.log(value)
+        refresh(userInfo.id, value)
+      }}
     />
     
-     </View>
+     </View> 
      <View style={{width: 280}}>
      <CustomButton
       label={"Update Location"}

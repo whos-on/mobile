@@ -7,6 +7,7 @@ import MessagesScreen from "../screens/MessagesScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import FriendsScreen from "../screens/FriendsScreen";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { color } from "@rneui/base";
 
 const Tab = createBottomTabNavigator();
 

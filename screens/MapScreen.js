@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { getColorFromStatus } from '../components/utils';
+import { getColorFromStatus, getStatusMessage } from '../components/utils';
 import * as Location from 'expo-location';
 import { Avatar } from '@rneui/themed';
 
@@ -104,17 +104,6 @@ const MapScreen = () => {
 
     }
 
-    const getStatusMessage = (status, time) => {
-        if(status === "Offline"){
-            return "Last Online " + time.toLocaleTimeString ('en-US', { hour12: true, hour: "numeric", minute: "numeric"})
-        }
-        if(status === "Online"){
-            return "Online"
-        }
-        if(status === "Away"){
-            return "Away"
-        }
-    }
     return (
         <View style={{ flex: 1 }}>
             <MapView

@@ -23,6 +23,17 @@ export const getColorFromStatus = (status) => {
     return "#FFD700"
 }
 
+export const getStatusMessage = (status, time) => {
+    if(status === "Offline"){
+        return "Last Online " + new Date(time).toLocaleTimeString ('en-US', { hour12: true, hour: "numeric", minute: "numeric"})
+        //return "Last Online " + time;
+    }
+    if(status === "Online"){
+        return "Online"
+    }
+    else return "Away"
+}
+
 
 
 export const createImageFromInitials = (size, name, status) => {
