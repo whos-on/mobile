@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   TouchableOpacity,
   Image,
@@ -10,61 +10,16 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import CustomButton from "../components/CustomButton";
 import InputField from "../components/InputField";
+import { AuthContext } from "../context/AuthContext";
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [data, setData] = useState({});
-  const [statusNum, setStatusNum] = useState(0);
-
-  const childToParentEmail = (childDataEmail) => {
-    setEmail(childDataEmail);
-  };
-  const childToParentPassword = (childDataPassword) => {
-    setPassword(childDataPassword);
-  };
-  const childToParentFirstName = (childDataFirstName) => {
-    setFirstName(childDataFirstName);
-  };
-  const childToParentLastName = (childDataLastName) => {
-    setLastName(childDataLastName);
-  };
-
-  const fetchRegister = async (
-    email,
-    password,
-    username,
-    firstName,
-    lastName
-  ) => {
-    try {
-      const responseReg = await fetch(
-        "https://api.whos-on.app/api/user/register/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email,
-            password: password,
-            username: username,
-            firstName: firstName,
-            lastName: lastName,
-          }),
-        }
-      );
-      //console.log(responseReg.status);
-      setStatusNum(responseReg.status);
-      const jsonDataReg = await responseReg.json();
-      //console.log(jsonDataReg);
-      setData(jsonDataReg);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const {isLoading, register, registerStatusColor, registerStatus} = useContext(AuthContext);
+  const [textColor, setTextColor] = useState("white");
+  const [errorMessage, setErrorMessage] = useState("");
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -91,7 +46,8 @@ const RegisterScreen = ({ navigation }) => {
                 style={{ marginRight: 5 }}
               />
             }
-            childToParent={childToParentFirstName}
+            onChangeText = {text => setFirstName(text)}
+            value = {firstName}
           />
           <InputField
             label={"Last Name"}
@@ -103,7 +59,8 @@ const RegisterScreen = ({ navigation }) => {
                 style={{ marginRight: 5 }}
               />
             }
-            childToParent={childToParentLastName}
+            onChangeText = {text => setLastName(text)}
+            value = {lastName}
           />
           <InputField
             label={"Email ID"}
@@ -116,7 +73,8 @@ const RegisterScreen = ({ navigation }) => {
               />
             }
             keyboardType="email-address"
-            childToParent={childToParentEmail}
+            onChangeText = {text => setEmail(text)}
+            value = {email}
           />
           <InputField
             label={"Password"}
@@ -129,30 +87,22 @@ const RegisterScreen = ({ navigation }) => {
               />
             }
             inputType="password"
-            childToParent={childToParentPassword}
+            onChangeText = {text => setPassword(text)}
+            value = {password}
           />
+
+          <Text style={{ color: registerStatusColor, fontWeight: "700", paddingBottom: 20}}>
+            {registerStatus}
+          </Text>
 
           <CustomButton
             label={"Register"}
             onPress={() => {
-              console.log("------------------------------------");
-              console.log(
-                firstName + " " + lastName + " " + email + " " + password
-              );
-              fetchRegister(
-                email,
-                password,
-                "" + firstName + lastName,
-                firstName,
-                lastName
-              );
-              console.log(statusNum);
-              console.log(data);
-              if (statusNum == 201) {
-                navigation.navigate("HomeScreen");
-              }
+              register(firstName, lastName, firstName + lastName, email, password)
             }}
           />
+
+          
 
           <TouchableOpacity
             onPress={() => {

@@ -8,7 +8,8 @@ export default function InputField({
   keyboardType,
   fieldButtonLabel,
   fieldButtonFunction,
-  childToParent,
+  onChangeText,
+  value,
 }) {
   return (
     <View
@@ -27,14 +28,16 @@ export default function InputField({
           keyboardType={keyboardType}
           style={{ flex: 1, paddingVertical: 0 }}
           secureTextEntry={true}
-          onChangeText={(newText) => childToParent(newText)}
+          onChangeText={onChangeText}
+          value={value}
         />
       ) : (
         <TextInput
           placeholder={label}
           keyboardType={keyboardType}
           style={{ flex: 1, paddingVertical: 0 }}
-          onChangeText={(newText) => childToParent(newText)}
+          onChangeText={onChangeText}
+          value={value}
         />
       )}
       <TouchableOpacity onPress={fieldButtonFunction}>
