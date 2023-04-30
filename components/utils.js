@@ -25,7 +25,10 @@ export const getColorFromStatus = (status) => {
 
 export const getStatusMessage = (status, time) => {
     if(status === "Offline"){
-        return "Last Online " + new Date(time).toLocaleTimeString ('en-US', { hour12: true, hour: "numeric", minute: "numeric"})
+        let date = new Date(time);
+        let dateString = date.toLocaleTimeString('en-US', { hour12: true, hour: "numeric", minute: "numeric"})
+        console.log(time + "   " + dateString)
+        return "Last Online " + dateString;
         //return "Last Online " + time;
     }
     if(status === "Online"){
@@ -34,36 +37,27 @@ export const getStatusMessage = (status, time) => {
     else return "Away"
 }
 
+export const userToBgColor = (user) => {
+    const f = user.firstName?.[0].toLowerCase().charCodeAt(0)
+    const l = user.lastName?.[0].toLowerCase().charCodeAt(0)
+    const id = parseInt(user?.id || NaN, 16) || 0 // ids = 12 byte hex strings
+    const a = "a".charCodeAt(0)
+    const z = "z".charCodeAt(0)
 
+    if (!f || !l || !id) return "hsl(0,100%,40%)"
 
-export const createImageFromInitials = (size, name, status) => {
-    if (name == null) return;
-    name=getInitials(name)
-    let color = "";
+    const hueRangeMax = 360
+    const b = z - a + 1                 // base
+    const oldMin = z - a + 2            // lower bound (26)
+    const oldMax = (z - a + 1) * b + b  // upper bound (702)
 
-    if(status === "Online"){
-        color = "#006400"
-    }
-    else if(status === "Offline"){
-        color = "#808080"
-    }
-    else color = "FFFF00"
+    // Get unique permutation using a 2-term polynomial
+    let ret = (f - a + 1) * b + l - a + 1 - oldMin
+    ret = Math.floor(ret * (hueRangeMax / (oldMax - oldMin))) // Clamp range
+    // Use id's to offset hue, so that users with the same initials have
+    // different colors (but still deterministic)
+    ret -= Math.max(Math.min(Math.floor(Math.sin(id) * 100), hueRangeMax), 0)
+    ret = (ret + 360) % 360 // Clamp again (in case of negative)
 
-    const canvas=document.createElement('canvas')
-    const context=canvas.getContext('2d')
-    canvas.width=canvas.height=size
-
-    context.fillStyle="#ffffff"
-    context.fillRect(0,0,size,size)
-
-    context.fillStyle=`${color}50`
-    context.fillRect(0,0,size,size)
-
-    context.fillStyle=color;
-    context.textBaseline='middle'
-    context.textAlign='center'
-    context.font =`${size/2}px Roboto`
-    context.fillText(name,(size/2),(size/2))
-
-    return canvas.toDataURL()
-};
+    return `hsl(${ ret },100%,40%)` // Just do hsl for CSS (no hsl->rgb->hex)
+}

@@ -1,16 +1,19 @@
+import React, {useContext} from 'react';
 import { Platform, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Avatar } from '@rneui/themed';
 import { getColorFromStatus, getStatusMessage } from './utils';
-import React from "react";
+import { AuthContext } from '../context/AuthContext';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 export default function FriendRequest({ userName }) {
+
+  const { processRequest, userInfo } = useContext(AuthContext);
   return (
     <View style={styles.friendBlock}>
     <Text style = {{paddingLeft: 5, fontWeight: 'bold'}}>User <Text style={{color:"#25D366"}}>{userName}</Text> would like to be friends!</Text>
 
     <View style = {{flexDirection: "row", position: "absolute", right: 12, backgroundColor: "#fff"}}>
-    <TouchableOpacity onPress={() => {}}>
+    <TouchableOpacity onPress={() => {processRequest(userInfo.id, userName, true)}}>
     <MaterialIcons
         name="check-circle-outline"
         size={25}
@@ -19,7 +22,7 @@ export default function FriendRequest({ userName }) {
     />
     </TouchableOpacity>
 
-    <TouchableOpacity onPress={() => {}}>
+    <TouchableOpacity onPress={() => {processRequest(userInfo.id, userName, true)}}>
     <MaterialIcons
         name="close"
         size={25}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -8,10 +8,32 @@ import ProfileScreen from "../screens/ProfileScreen";
 import FriendsScreen from "../screens/FriendsScreen";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { color } from "@rneui/base";
+import { AuthContext } from "../context/AuthContext";
+import axios from 'axios';
 
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
+  
+  const { userInfo, refresh, get, curLoc, setIsLoading, autoRefresh } = useContext(AuthContext);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      autoRefresh(userInfo.id)
+      get(userInfo.id)
+    }, 4000);
+  
+    return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+  }, [])
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     updateStatus(userInfo.id)
+  //   }, 2000);
+  
+  //   return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+  // }, [])
+
   return (
     <Tab.Navigator
     initialRouteName="Friends"

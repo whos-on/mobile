@@ -1,6 +1,6 @@
 import { Platform, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Avatar } from '@rneui/themed';
-import { getColorFromStatus, getStatusMessage } from './utils';
+import { userToBgColor, getStatusMessage, getColorFromStatus } from './utils';
 import React from "react";
 
 export default function FriendBlock({ firstName, lastName, status, lastUpdated }) {
@@ -13,7 +13,7 @@ export default function FriendBlock({ firstName, lastName, status, lastUpdated }
     <Avatar
       size={64}
       title={firstName.substring(0, 1) + lastName.substring(0, 1)}
-      containerStyle={{ backgroundColor: '#25D366'}}
+      containerStyle={{ backgroundColor: userToBgColor({firstName: firstName, lastName: lastName})}}
       rounded
     />
     </View>

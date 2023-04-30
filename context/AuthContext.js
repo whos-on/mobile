@@ -6,17 +6,24 @@ import * as Location from 'expo-location';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
-    const baseURL = 'http://localhost:3000/'
+    const baseURL = 'http://10.127.129.140:3000/'
     const [userInfo, setUserInfo] = useState(null);
     const [friendInfo, setFriendInfo] = useState(null);
+    const [searchInfo, setSearchInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [splashLoading, setSplashLoading] = useState(false);
     const [registerStatus, setRegisterStatus] = useState('');
     const [registerStatusColor, setRegisterStatusColor] = useState('white');
+    const [addFriendStatus, setAddFriendStatus] = useState('');
+    const [addFriendStatusColor, setAddFriendStatusColor] = useState('white');
     const [requestInfo, setRequestInfo] = useState(null);
-    const [latitude, setLatitude] = useState(27.5986);
-    const [longitude, setLongitude] = useState(-82.1986);
     const [currentStatus, setCurrentStatus] = useState("Online");
+    const [curLoc, setCurLoc] = useState({
+        latitude: 27.5989,
+        longitude: -82.1989,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+    })
 
     const register = (firstName, lastName, username, email, password) => {
         setIsLoading(true);
@@ -52,9 +59,10 @@ export const AuthProvider = ({children}) => {
         }).then(res => {
             let userInfo = res.data;
             setUserInfo(userInfo);
+            
             AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
             get(userInfo.id)
-            refresh(userInfo.id, "Online")
+            refresh(userInfo.id, "Online", curLoc)
             setIsLoading(false);
             console.log(userInfo);
         }).catch(e => {
@@ -74,9 +82,6 @@ export const AuthProvider = ({children}) => {
         const input = {
             "id": userId
         }
-        //console.log(input);
-        // console.log("Hi");
-        // console.log("Id: " + id);
         setIsLoading(true);
 
         axios.post(baseURL + 'api/friend/get/', input)
@@ -92,26 +97,108 @@ export const AuthProvider = ({children}) => {
         })
     }
 
-    const refresh = (id, userStatus) => {
+    const search = (userId, search) => {
+        const input = {
+            "id": userId,
+            "search": search,
+        }
+        setIsLoading(true);
+
+        axios.post(baseURL + 'api/friend/search/', input)
+        .then(res => {
+            let searchInfo = res.data.friends;
+            setSearchInfo(searchInfo);
+            //AsyncStorage.setItem('friendInfo', JSON.stringify(friendInfo));
+            setIsLoading(false);
+            //console.log(friendInfo);
+        }).catch(e => {
+            console.log(e);
+            setIsLoading(false);
+        })
+    }
+
+    const refresh = (id, userStatus, location) => {
+        console.log(currentStatus)
+
         const input = {
             "id": id,
             "userStatus": userStatus,
-            "location": {latitude: latitude, longitude: longitude}
+            "location": {latitude: location.latitude, longitude: location.longitude}
         }
-        console.log(input);
 
-            setIsLoading(true);
-            setCurrentStatus(userStatus);
-            axios.put(baseURL + 'api/user/refresh/', input)
-            .then(res => {
-            let requestInfo = res.data.requests;
-            //console.log("requests" + JSON.stringify(res.data) + "here");
-            setRequestInfo(requestInfo);
-            //AsyncStorage.setItem('friendInfo', JSON.stringify(friendInfo));
+        console.log(input);
+        //setCurrentStatus(userStatus);
+        axios.put(baseURL + 'api/user/refresh/', input)
+        .then(res => {
+        let requestInfo = res.data.requests;
+        setRequestInfo(requestInfo);
+        }).catch(e => {
+        console.log(e);
+        setIsLoading(false);
+        })
+    }
+
+    const autoRefresh = (userId) => {
+        const input = {
+            "id": userId
+        }
+        setIsLoading(true);
+
+        const promise = axios.post(baseURL + 'api/user/info/', input)
+        .then(res => {
+            
+            // setCurrentStatus(status)
+            // console.log(currentStatus)
             setIsLoading(false);
-            //console.log(requestInfo);
+            refresh(userInfo.id, res.data.status, curLoc)
+            console.log("Status is " + res.data.status)
+            //return res.data.status;
+            //console.log(status);
         }).catch(e => {
             console.log(e);
+            setIsLoading(false);
+        })
+
+        return promise;
+    }
+
+    const processRequest = (userId, userName, accept) => {
+        const input = {
+            "id": userId,
+            "requester": userName,
+            "accept": accept,
+        }
+        setIsLoading(true);
+
+        axios.put(baseURL + 'api/friend/processRequest/', input)
+        .then(res => {
+            //let searchInfo = res.data.friends;
+            get(userInfo.id)
+            autoRefresh(userInfo.id)
+            //AsyncStorage.setItem('friendInfo', JSON.stringify(friendInfo));
+            setIsLoading(false);
+            //console.log(friendInfo);
+        }).catch(e => {
+            console.log(e);
+            setIsLoading(false);
+        })
+    }
+
+    const addFriend = (userId, search) => {
+        const input = {
+            "id": userId,
+            "search": search,
+        }
+        setIsLoading(true);
+
+        axios.put(baseURL + 'api/friend/addFriend/', input)
+        .then(res => {
+            // setRegisterStatusColor('green')
+            // setRegisterStatus('Registration Successful')
+            setIsLoading(false);
+        }).catch(e => {
+            // setRegisterStatusColor('red')
+            // setRegisterStatus('Invalid Credentials')
             setIsLoading(false);
         })
     }
@@ -122,7 +209,7 @@ export const AuthProvider = ({children}) => {
           let userInfo = await AsyncStorage.getItem('userInfo');
           userInfo = JSON.parse(userInfo);
           if (userInfo) {
-            //setUserInfo(userInfo);
+            setUserInfo(userInfo);
           }
           setSplashLoading(false);
         } catch (e) {
@@ -135,34 +222,39 @@ export const AuthProvider = ({children}) => {
         isLoggedIn();
     }, [])
 
-    // useEffect(() => {
-    //     (async () => {
-    //       let { status } = await Location.requestForegroundPermissionsAsync();
-    //       if (status !== 'granted') {
-    //         setErrorMsg('Permission to access location was denied');
-    //         return;
-    //       }
-    
-    //       let location = await Location.getCurrentPositionAsync({});
-    //       setLatitude(location.coords.latitude);
-    //       setLongitude(location.coords.longitude);
-    //     })();
-    // }, []);
-  
+    const updateLocation = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        console.log(status);
+        if (status !== 'granted') {
+            
+            //setErrorMsg('Permission to access location was denied');
+            return;
+        }
+      
+        let location = await Location.getCurrentPositionAsync({});
+        //console.log(location);
+        
+        return location;
+    };
 
-    // useEffect(() => {
-    //     if(userInfo != null){
-    //         const id = setInterval(refresh(currentStatus), 10000);
-    //         return () => clearInterval(id);
-    //     }
-    //  }, []);
-
-    //  useEffect(() => {
-    //     if(userInfo != null){
-    //         const id = setInterval(get(), 10000);
-    //         return () => clearInterval(id);
-    //     }
-    //  }, []);
+    useEffect(() => {
+        const interval = setInterval(() => {
+          updateLocation()
+          .then(res => {
+            //console.log(res);
+            // updateLatitude(res.coords.latitude);
+            // updateLongitude(res.coords.latitude);
+            setCurLoc((previousState) => ({
+                ...previousState, 
+                latitude: res.coords.latitude,
+                longitude: res.coords.longitude
+            }));
+            // setLongitude(res.coords.longitude)
+          });
+        }, 2000);
+      
+        return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+      }, [])
 
     return (
         <AuthContext.Provider value={{login, 
@@ -173,12 +265,20 @@ export const AuthProvider = ({children}) => {
                                     userInfo, 
                                     refresh,
                                     get,
+                                    search,
+                                    searchInfo,
                                     registerStatus,
                                     registerStatusColor,
                                     requestInfo,
-                                    friendInfo}}>
+                                    friendInfo,
+                                    currentStatus,
+                                    setCurrentStatus,
+                                    curLoc,
+                                    autoRefresh,
+                                    addFriend,
+                                    processRequest
+                                    }}>
             {children}
         </AuthContext.Provider>
     );
 }
-
