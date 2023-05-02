@@ -9,18 +9,31 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import Conversations from "../components/Conversations";
+import { Link } from "@react-navigation/native";
+import { AuthContext } from "../context/AuthContext";
+
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetFooter,
 } from "@gorhom/bottom-sheet";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useContext, useEffect, useState } from "react";
 import { TextInput } from "react-native-gesture-handler";
 
 export default function MessagesScreen() {
+  const {
+    isLoading,
+    register,
+    registerStatusColor,
+    registerStatus,
+    messagesInfo,
+    getChatInfo,
+  } = useContext(AuthContext);
+
   const bottomSheetModalRef = useRef(null);
+  const bottomSheetModalRef2 = useRef(null);
 
   const snapPoints = ["90%"];
 
@@ -28,6 +41,12 @@ export default function MessagesScreen() {
 
   function handlePresentModal() {
     bottomSheetModalRef.current?.present();
+  }
+
+  const handleClosePress2 = () => bottomSheetModalRef2.current.close();
+
+  function handlePresentModal2() {
+    bottomSheetModalRef2.current?.present();
   }
 
   const renderFooter = useCallback(
@@ -96,10 +115,10 @@ export default function MessagesScreen() {
                       style={{
                         marginLeft: 12,
                       }}
-                      placeholder="Search a contact..."
+                      placeholder="Search a chat..."
                     />
                   </View>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={handlePresentModal2}>
                     <Feather
                       name="plus"
                       size={24}
@@ -107,6 +126,37 @@ export default function MessagesScreen() {
                       style={{ marginLeft: 3 }}
                     />
                   </TouchableOpacity>
+                  <BottomSheetModal
+                    ref={bottomSheetModalRef2}
+                    index={0}
+                    snapPoints={snapPoints}
+                    backgroundStyle={{ borderRadius: 50 }}
+                  >
+                    <View style={styles.sheet2Header}>
+                      <MaterialIcons
+                        name="cancel"
+                        size={30}
+                        color="black"
+                        style={styles.sheet2HeaderLeft}
+                      />
+                      <Text style={styles.sheet2HeaderText}>Group Message</Text>
+                      <Feather
+                        name="check-square"
+                        size={30}
+                        color="black"
+                        style={styles.sheet2HeaderRight}
+                      />
+                    </View>
+                    <View style={{ alignItems: "center", marginTop: 12 }}>
+                      <View style={styles.sheet2SearchBar}>
+                        <Feather name="search" size={20} color="black" />
+                        <TextInput
+                          placeholder="Search contacts..."
+                          style={{ marginLeft: 10 }}
+                        />
+                      </View>
+                    </View>
+                  </BottomSheetModal>
                 </View>
               </View>
             </BottomSheetModal>
@@ -121,15 +171,15 @@ export default function MessagesScreen() {
         </View>
 
         <ScrollView>
-          <Conversations />
-          <Conversations />
-          <Conversations />
-          <Conversations />
-          <Conversations />
-          <Conversations />
-          <Conversations />
-          <Conversations />
-          <Conversations />
+          <Conversations chatID={"64509922b5c01b11db82eeef"} />
+          <Conversations chatID={"64509922b5c01b11db82eeef"} />
+          <Conversations chatID={"64509922b5c01b11db82eeef"} />
+          <Conversations chatID={"64509922b5c01b11db82eeef"} />
+          <Conversations chatID={"64509922b5c01b11db82eeef"} />
+          <Conversations chatID={"64509922b5c01b11db82eeef"} />
+          <Conversations chatID={"64509922b5c01b11db82eeef"} />
+          <Conversations chatID={"64509922b5c01b11db82eeef"} />
+          <Conversations chatID={"64509922b5c01b11db82eeef"} />
         </ScrollView>
       </BottomSheetModalProvider>
     </SafeAreaView>
@@ -191,5 +241,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  sheet2Header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 14,
+    //borderWidth: 0.8,
+    //borderColor: "#C0C0C0",
+  },
+  sheet2HeaderLeft: { marginLeft: 15 },
+  sheet2HeaderText: { fontSize: 28, fontWeight: 600 },
+  sheet2HeaderRight: { marginRight: 18 },
+  sheet2SearchBar: {
+    borderWidth: 0.8,
+    borderColor: "#C0C0C0",
+    width: "95%",
+    height: 48,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 75,
   },
 });

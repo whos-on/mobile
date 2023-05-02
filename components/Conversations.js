@@ -1,7 +1,41 @@
 import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
-import React from "react";
+import { React, useContext, useState, useEffect } from "react";
+import { Avatar } from "@rneui/themed";
+import { userToBgColor, getStatusMessage, getColorFromStatus } from "./utils";
+import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
+//const baseURL = "https://api.whos-on.app/";
+const baseURL = "http://localhost:3000/";
 
-const Conversations = () => {
+const Conversations = ({ chatID }) => {
+  const [chatRoomRes, setChatRoomRes] = useState(null);
+
+  useEffect(() => {
+    const getChatInfo = (chatID) => {
+      const input = {
+        chatID: chatID,
+      };
+      axios
+        .post(baseURL + "api/chat/info/", input)
+        .then((res) => {
+          let info = res.data;
+          //let array = [...messagesInfo];
+          //array[index] = info;
+          setChatRoomRes(info);
+          //setMessagesInfo(array);
+          //console.log("we are getchatinfo");
+          console.log("chat info " + info);
+          //return info;
+        })
+        .catch((e) => {
+          console.log(e.response.data);
+          setIsLoading(false);
+        });
+    };
+
+    getChatInfo({ chatID });
+  }, []);
+
   return (
     <View style={styles.blockMain}>
       <Image
@@ -13,17 +47,21 @@ const Conversations = () => {
 
       <View style={styles.blockText}>
         <View style={styles.blockTopText}>
-          <Text style={styles.textName}>Carl Williams</Text>
-          <Text style={styles.availableText}>Available</Text>
+          <Text style={styles.textName}>
+            {console.log(JSON.stringify(chatRoomRes))}
+            {chatRoomRes.people[1].firstName +
+              " " +
+              chatRoomRes.people[1].lastName}
+          </Text>
+          <Text style={styles.availableText}>
+            {chatRoomRes.people[1].stat.userStatus}
+          </Text>
         </View>
         <View style={styles.blockBottomText}>
           <Text style={styles.lastSeenText}>
             Last seen 3m ago in Orlando, Fl
           </Text>
-          <Text numberOfLines={1} style={styles.message}>
-            "yeah have you seen that new movie with a bear in it? yeah have you
-            seen that new movie with a bear in it?..."
-          </Text>
+          <Text numberOfLines={1} style={styles.message}></Text>
         </View>
       </View>
     </View>

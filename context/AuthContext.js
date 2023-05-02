@@ -6,7 +6,8 @@ import * as Location from "expo-location";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const baseURL = "https://api.whos-on.app/";
+  //const baseURL = "https://api.whos-on.app/";
+  const baseURL = "http://localhost:3000/";
   const [userInfo, setUserInfo] = useState(null);
   const [friendInfo, setFriendInfo] = useState(null);
   const [searchInfo, setSearchInfo] = useState(null);
@@ -18,6 +19,8 @@ export const AuthProvider = ({ children }) => {
   const [addFriendStatusColor, setAddFriendStatusColor] = useState("white");
   const [requestInfo, setRequestInfo] = useState(null);
   const [currentStatus, setCurrentStatus] = useState("Online");
+  const [messagesInfo, setMessagesInfo] = useState([]);
+  const [chatInfo, setChatInfo] = useState(null);
   const [curLoc, setCurLoc] = useState({
     latitude: 27.5989,
     longitude: -82.1989,
@@ -46,7 +49,7 @@ export const AuthProvider = ({ children }) => {
         // console.log(userInfo);
       })
       .catch((e) => {
-        //console.log(e)
+        console.log(e.response.data);
         setRegisterStatusColor("red");
         setRegisterStatus("Invalid Credentials");
         setIsLoading(false);
@@ -68,6 +71,7 @@ export const AuthProvider = ({ children }) => {
         AsyncStorage.setItem("userInfo", JSON.stringify(userInfo));
         get(userInfo.id);
         refresh(userInfo.id, "Online", curLoc);
+        getMessages(userInfo.id);
         setIsLoading(false);
         console.log(userInfo);
       })
@@ -271,6 +275,80 @@ export const AuthProvider = ({ children }) => {
     return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
   }, []);
 
+  const getMessages = (userId) => {
+    const input = {
+      id: userId,
+    };
+    setIsLoading(true);
+
+    axios
+      .post(baseURL + "api/chat/get/", input)
+      .then((res) => {
+        let messagesInfo = res.data;
+        //setMessagesInfo(messagesInfo);
+
+        //let arr = [];
+        for (let i = 0; i < messagesInfo.length; i++) {
+          getChatInfo(messagesInfo[i], i);
+        }
+
+        console.log("messagesInfo in getMessages" + messagesInfo);
+
+        setIsLoading(false);
+        console.log("This is the weird " + messagesInfo[1]);
+        //console.log(arr);
+        return arr;
+      })
+      .catch((e) => {
+        console.log(e.response.data);
+        setIsLoading(false);
+      });
+  };
+
+  // const getChatInfo = (chatID) => {
+  //   const input = {
+  //     chatID: chatID,
+  //   };
+  //   setIsLoading(true);
+
+  //   axios
+  //     .post(baseURL + "api/chat/info/", input)
+  //     .then((res) => {
+  //       let chatInfo = res.data;
+  //       setChatInfo(chatInfo);
+  //       setIsLoading(false);
+  //       console.log("getChatInfo " + chatInfo.people[1].firstName);
+  //     })
+  //     .catch((e) => {
+  //       console.log(e.response.data);
+  //       setIsLoading(false);
+  //     });
+  // };
+
+  const getChatInfo = (chatID) => {
+    const input = {
+      chatID: chatID,
+    };
+    setIsLoading(true);
+    axios
+      .post(baseURL + "api/chat/info/", input)
+      .then((res) => {
+        let info = res.data;
+        //let array = [...messagesInfo];
+        //array[index] = info;
+        setChatInfo(info);
+        //setMessagesInfo(array);
+        setIsLoading(false);
+        //console.log("we are getchatinfo");
+        console.log("chat info " + info);
+        //return info;
+      })
+      .catch((e) => {
+        console.log(e.response.data);
+        setIsLoading(false);
+      });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -294,6 +372,10 @@ export const AuthProvider = ({ children }) => {
         autoRefresh,
         addFriend,
         processRequest,
+        getMessages,
+        messagesInfo,
+        getChatInfo,
+        chatInfo,
       }}
     >
       {children}
