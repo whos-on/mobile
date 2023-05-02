@@ -6,8 +6,8 @@ import * as Location from "expo-location";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  //const baseURL = "https://api.whos-on.app/";
-  const baseURL = "http://localhost:3000/";
+  const baseURL = "https://api.whos-on.app/";
+  //const baseURL = "http://localhost:3000/";
   const [userInfo, setUserInfo] = useState(null);
   const [friendInfo, setFriendInfo] = useState(null);
   const [searchInfo, setSearchInfo] = useState(null);

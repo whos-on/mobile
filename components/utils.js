@@ -61,3 +61,30 @@ export const userToBgColor = (user) => {
 
     return `hsl(${ ret },100%,40%)` // Just do hsl for CSS (no hsl->rgb->hex)
 }
+
+export const arrToStringList = (arr) => {
+    let ret = "";
+    for (let i = 0; i < arr.length; i++){
+        //console.log("i: " + arr[i].firstName)
+        ret += arr[i].firstName;
+        if(i < arr.length - 1){
+            ret += ", ";
+        }
+    }
+
+    return ret;
+}
+
+export const arrToCharList = (arr) => {
+    let ret = "";
+    for (let i = 0; i < arr.length; i++){
+        //console.log("i: " + arr[i].firstName.substring(0, 1))
+        ret += arr[i].firstName.substring(0, 1);
+        if(i < arr.length - 1){
+            ret += ",";
+        }
+    }
+
+    return ret;
+}
+

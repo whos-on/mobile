@@ -2,6 +2,7 @@ import { Platform, Text, View, StyleSheet, TouchableOpacity } from 'react-native
 import { Avatar } from '@rneui/themed';
 import { userToBgColor, getStatusMessage, getColorFromStatus } from './utils';
 import React from "react";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function FriendBlock({ firstName, lastName, status, lastUpdated }) {
     const statusColor = getColorFromStatus(status)
@@ -24,12 +25,9 @@ export default function FriendBlock({ firstName, lastName, status, lastUpdated }
     </View>
 
     <View style={styles.friendBlock3}>
-    <TouchableOpacity
-      onPress={() => {}}>
-        <Text style={{ color: "#ff0000", fontWeight: "700", paddingLeft: 50}}>
-          Remove
-        </Text>
-    </TouchableOpacity>
+    <View style={{ position: "absolute", right: 10 }}>
+        <Ionicons name="ios-exit-outline" size={24} color="red" style={{}} />
+      </View>
     </View>
     </View> 
     

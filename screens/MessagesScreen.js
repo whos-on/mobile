@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import Conversations from "../components/Conversations";
+//import ConversationBlock from "../components/ConversationBlock";
 import ChatView from "../components/ChatView";
 import { Link } from "@react-navigation/native";
 import { AuthContext } from "../context/AuthContext";

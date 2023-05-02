@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
 import { React, useContext, useState, useEffect } from "react";
 import { Avatar } from "@rneui/themed";
-import { userToBgColor, getStatusMessage, getColorFromStatus } from "./utils";
+import { userToBgColor, getStatusMessage, getColorFromStatus, arrToStringList } from "./utils";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
@@ -43,20 +43,16 @@ const Conversations = ({ chatId }) => {
 
   return (
     <View style={styles.blockMain}>
-      <Image
-        style={styles.image}
-        source={{
-          uri: "https://lh3.google.com/u/0/ogw/AOLn63FO5Fmf1Bc9H1RUAA1tm5s_-FWAezfTxhNk97w=s32-c-mo",
-        }}
-      />
+      
       {chatRoomRes && (
         <View style={styles.blockText}>
           <View style={styles.blockTopText}>
             {/* <View style={{ paddingRight: 100 }}> */}
             <Text style={styles.textName}>
-              {chatRoomRes.people[1].firstName +
+              {/* {chatRoomRes.people[1].firstName +
                 " " +
-                chatRoomRes.people[1].lastName}
+                chatRoomRes.people[1].lastName} */
+                arrToStringList(chatRoomRes.people)}
             </Text>
             {/* </View> */}
           </View>
