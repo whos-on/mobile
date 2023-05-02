@@ -29,7 +29,7 @@ export default function TabNavigator() {
     const interval = setInterval(() => {
       autoRefresh(userInfo.id);
       get(userInfo.id);
-      //getMessages(userInfo.id);
+      getMessages(userInfo.id);
       //getChatInfo("64509922b5c01b11db82eeef");
     }, 4000);
 

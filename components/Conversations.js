@@ -4,27 +4,31 @@ import { Avatar } from "@rneui/themed";
 import { userToBgColor, getStatusMessage, getColorFromStatus } from "./utils";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
+import { Ionicons } from "@expo/vector-icons";
 //const baseURL = "https://api.whos-on.app/";
 const baseURL = "http://localhost:3000/";
 
-const Conversations = ({ chatID }) => {
+const Conversations = ({ chatId }) => {
   const [chatRoomRes, setChatRoomRes] = useState(null);
+  const [chat, setChat] = useState(chatId);
+  //console.log("the chat id is... " + chat);
 
   useEffect(() => {
-    const getChatInfo = (chatID) => {
+    const getChatInfo = () => {
       const input = {
-        chatID: chatID,
+        chatID: chat,
       };
       axios
         .post(baseURL + "api/chat/info/", input)
         .then((res) => {
-          let info = res.data;
+          const info = res.data;
+          setChatRoomRes(info);
           //let array = [...messagesInfo];
           //array[index] = info;
-          setChatRoomRes(info);
           //setMessagesInfo(array);
           //console.log("we are getchatinfo");
-          console.log("chat info " + info);
+          //console.log("chat info " + info);
+          //console.log("chat info " + typeof info);
           //return info;
         })
         .catch((e) => {
@@ -33,7 +37,8 @@ const Conversations = ({ chatID }) => {
         });
     };
 
-    getChatInfo({ chatID });
+    getChatInfo();
+    console.log("Inside useEffect " + chatRoomRes);
   }, []);
 
   return (
@@ -44,25 +49,30 @@ const Conversations = ({ chatID }) => {
           uri: "https://lh3.google.com/u/0/ogw/AOLn63FO5Fmf1Bc9H1RUAA1tm5s_-FWAezfTxhNk97w=s32-c-mo",
         }}
       />
+      {chatRoomRes && (
+        <View style={styles.blockText}>
+          <View style={styles.blockTopText}>
+            {/* <View style={{ paddingRight: 100 }}> */}
+            <Text style={styles.textName}>
+              {chatRoomRes.people[1].firstName +
+                " " +
+                chatRoomRes.people[1].lastName}
+            </Text>
+            {/* </View> */}
+          </View>
 
-      <View style={styles.blockText}>
-        <View style={styles.blockTopText}>
-          <Text style={styles.textName}>
-            {console.log(JSON.stringify(chatRoomRes))}
-            {chatRoomRes.people[1].firstName +
-              " " +
-              chatRoomRes.people[1].lastName}
-          </Text>
-          <Text style={styles.availableText}>
-            {chatRoomRes.people[1].stat.userStatus}
-          </Text>
+          <View style={styles.blockBottomText}>
+            <Text numberOfLines={1} style={styles.message}>
+              {chatRoomRes.messages == null
+                ? "Click to add a message"
+                : chatRoomRes.messages[chatRoomRes.messages.length - 1]
+                    .contents}
+            </Text>
+          </View>
         </View>
-        <View style={styles.blockBottomText}>
-          <Text style={styles.lastSeenText}>
-            Last seen 3m ago in Orlando, Fl
-          </Text>
-          <Text numberOfLines={1} style={styles.message}></Text>
-        </View>
+      )}
+      <View style={{ position: "absolute", right: 10 }}>
+        <Ionicons name="ios-exit-outline" size={24} color="red" style={{}} />
       </View>
     </View>
   );
@@ -90,7 +100,7 @@ const styles = StyleSheet.create({
   },
   blockText: {},
   blockTopText: {
-    width: "72%",
+    width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
     marginLeft: 11,

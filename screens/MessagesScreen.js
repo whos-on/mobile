@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import Conversations from "../components/Conversations";
+import ChatView from "../components/ChatView";
 import { Link } from "@react-navigation/native";
 import { AuthContext } from "../context/AuthContext";
 
@@ -21,6 +22,7 @@ import {
 } from "@gorhom/bottom-sheet";
 import { useRef, useCallback, useContext, useEffect, useState } from "react";
 import { TextInput } from "react-native-gesture-handler";
+import FriendBlockBottomSheet from "../components/FriendBlockBottomSheet";
 
 export default function MessagesScreen() {
   const {
@@ -30,10 +32,19 @@ export default function MessagesScreen() {
     registerStatus,
     messagesInfo,
     getChatInfo,
+    chatInfo,
+    friendInfo,
+    searchInfo,
+    search,
+    userInfo,
   } = useContext(AuthContext);
 
   const bottomSheetModalRef = useRef(null);
   const bottomSheetModalRef2 = useRef(null);
+  const bottomSheetModalRef3 = useRef(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [chatID, setChatID] = useState(null);
+  const [chatIndex, setChatIndex] = useState(null);
 
   const snapPoints = ["90%"];
 
@@ -47,6 +58,12 @@ export default function MessagesScreen() {
 
   function handlePresentModal2() {
     bottomSheetModalRef2.current?.present();
+  }
+
+  const handleClosePress3 = () => bottomSheetModalRef3.current.close();
+
+  function handlePresentModal3() {
+    bottomSheetModalRef3.current?.present();
   }
 
   const renderFooter = useCallback(
@@ -115,7 +132,12 @@ export default function MessagesScreen() {
                       style={{
                         marginLeft: 12,
                       }}
-                      placeholder="Search a chat..."
+                      placeholder="Search a contact..."
+                      onChangeText={(text) => {
+                        setSearchValue(text);
+                        search(userInfo.id, text);
+                      }}
+                      value={searchValue}
                     />
                   </View>
                   <TouchableOpacity onPress={handlePresentModal2}>
@@ -159,6 +181,40 @@ export default function MessagesScreen() {
                   </BottomSheetModal>
                 </View>
               </View>
+              {friendInfo == null || friendInfo.length == 0 ? (
+                <View style={{ alignItems: "center", paddingTop: 20 }}>
+                  <Text style={{ fontSize: 14, color: "gray" }}>
+                    Go to Friends Page to start adding friends!
+                  </Text>
+                </View>
+              ) : searchValue.length == 0 ? (
+                friendInfo.map((item, i) => (
+                  <FriendBlockBottomSheet
+                    firstName={item.firstName}
+                    lastName={item.lastName}
+                    status={item.stat.userStatus}
+                    key={i}
+                    lastUpdated={item.stat.lastUpdated}
+                  />
+                ))
+              ) : searchInfo != null && searchInfo.length != 0 ? (
+                searchInfo.map((item, i) => (
+                  <FriendBlockBottomSheet
+                    firstName={item.firstName}
+                    lastName={item.lastName}
+                    status={item.stat.userStatus}
+                    key={i}
+                    lastUpdated={item.stat.lastUpdated}
+                  />
+                ))
+              ) : (
+                <View style={{ alignItems: "center", paddingTop: 20 }}>
+                  <Text style={{ fontSize: 14, color: "gray" }}>
+                    No friends with that name! Use the Add Friend Button to add
+                    this username.
+                  </Text>
+                </View>
+              )}
             </BottomSheetModal>
             <Image
               style={styles.searchBarImage}
@@ -170,16 +226,38 @@ export default function MessagesScreen() {
           </View>
         </View>
 
-        <ScrollView>
-          <Conversations chatID={"64509922b5c01b11db82eeef"} />
-          <Conversations chatID={"64509922b5c01b11db82eeef"} />
-          <Conversations chatID={"64509922b5c01b11db82eeef"} />
-          <Conversations chatID={"64509922b5c01b11db82eeef"} />
-          <Conversations chatID={"64509922b5c01b11db82eeef"} />
-          <Conversations chatID={"64509922b5c01b11db82eeef"} />
-          <Conversations chatID={"64509922b5c01b11db82eeef"} />
-          <Conversations chatID={"64509922b5c01b11db82eeef"} />
-          <Conversations chatID={"64509922b5c01b11db82eeef"} />
+        <ScrollView style={styles.scrollView}>
+          {messagesInfo.map((item, i) => (
+            <TouchableOpacity
+              onPress={() => {
+                handlePresentModal3();
+                setChatIndex(i);
+                setChatID(getChatInfo(item));
+                console.log(chatID);
+              }}
+              key={i}
+            >
+              <Conversations chatId={item} />
+            </TouchableOpacity>
+          ))}
+          <BottomSheetModal
+            ref={bottomSheetModalRef3}
+            index={0}
+            snapPoints={snapPoints}
+            backgroundStyle={{ borderRadius: 50 }}
+          >
+            {}
+          </BottomSheetModal>
+
+          {/* <Conversations chatId={"64509922b5c01b11db82eeef"} />
+          <Conversations chatId={"64509922b5c01b11db82eeef"} />
+          <Conversations chatId={"64509922b5c01b11db82eeef"} />
+          <Conversations chatId={"64509922b5c01b11db82eeef"} />
+          <Conversations chatId={"64509922b5c01b11db82eeef"} />
+          <Conversations chatId={"64509922b5c01b11db82eeef"} />
+          <Conversations chatId={"64509922b5c01b11db82eeef"} />
+          <Conversations chatId={"64509922b5c01b11db82eeef"} />
+          <Conversations chatId={"64509922b5c01b11db82eeef"} /> */}
         </ScrollView>
       </BottomSheetModalProvider>
     </SafeAreaView>
@@ -190,7 +268,7 @@ const styles = StyleSheet.create({
   topBar: {
     alignItems: "center",
     marginTop: 14,
-    marginBottom: 5,
+    marginBottom: 25,
   },
   bar: {
     width: 362,
@@ -235,6 +313,7 @@ const styles = StyleSheet.create({
   footerContainer: {
     padding: 12,
     margin: 12,
+    marginBottom: 70,
     borderRadius: 25,
     borderWidth: 1,
     borderColor: "#C0C0C0",
@@ -262,5 +341,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderRadius: 75,
+  },
+  scrollView: {
+    borderWidth: 0.8,
+    borderColor: "#C0C0C0",
+    width: "100%",
+    height: "100%",
   },
 });

@@ -285,22 +285,23 @@ export const AuthProvider = ({ children }) => {
       .post(baseURL + "api/chat/get/", input)
       .then((res) => {
         let messagesInfo = res.data;
-        //setMessagesInfo(messagesInfo);
+
+        setMessagesInfo(messagesInfo);
 
         //let arr = [];
-        for (let i = 0; i < messagesInfo.length; i++) {
-          getChatInfo(messagesInfo[i], i);
-        }
+        // for (let i = 0; i < messagesInfo.length; i++) {
+        //   getChatInfo(messagesInfo[i], i);
+        // }
 
-        console.log("messagesInfo in getMessages" + messagesInfo);
+        //console.log(messagesInfo);
 
         setIsLoading(false);
-        console.log("This is the weird " + messagesInfo[1]);
+        //console.log("This is the weird " + messagesInfo[1]);
         //console.log(arr);
         return arr;
       })
       .catch((e) => {
-        console.log(e.response.data);
+        //console.log(e.response.data);
         setIsLoading(false);
       });
   };
@@ -340,7 +341,7 @@ export const AuthProvider = ({ children }) => {
         //setMessagesInfo(array);
         setIsLoading(false);
         //console.log("we are getchatinfo");
-        console.log("chat info " + info);
+        //console.log("chat info " + info);
         //return info;
       })
       .catch((e) => {
